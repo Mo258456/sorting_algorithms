@@ -1,64 +1,64 @@
 #include "sort.h"
-
 /**
- * swap - swaps two nodes
- * @head: head of the list
- * @node1: first node to sort
- * @node2: second node to sort
+ * swapper - a function to help swap 2 nodes in a dlist
+ * @a: one node
+ * @b: the other node
  */
-void swap(listint_t **head, listint_t *node1, listint_t *node2)
+void swapper(listint_t *a, listint_t *b)
 {
-	listint_t *prev, *next;
-
-	prev = node1->prev;
-	next = node2->next;
-
-	if (prev != NULL)
-		prev->next = node2;
-	else
-		*head = node2;
-	node1->prev = node2;
-	node1->next = next;
-	node2->prev = prev;
-	node2->next = node1;
-	if (next)
-		next->prev = node1;
+	if (a->prev)
+		a->prev->next = b;
+	if (b->next)
+		b->next->prev = a;
+	a->next = b->next;
+	b->prev = a->prev;
+	a->prev = b;
+	b->next = a;
 }
 /**
- * cocktail_sort_list - sorts a list using the cocktail sort algorithm
- * @list: list to sort
+ * cocktail_sort_list - sort list
+ * @list: the list to sort
  */
 void cocktail_sort_list(listint_t **list)
 {
-	listint_t *head;
-	int flag = 0;
+	/* declarations */
+	listint_t *l;
+	int needssort = 1;
 
-	if (!list || !*list || !(*list)->next)
+	if (!(list && *list))
 		return;
-
-	do {
-		for (head = *list; head->next != NULL; head = head->next)
+	l = *list;
+	while (needssort)
+	{
+		needssort = 0;
+		while (l && l->next)
 		{
-			if (head->n > head->next->n)
+			if (l->n > l->next->n)
 			{
-				swap(list, head, head->next);
+				swapper(l, l->next);
+				if (l->prev->prev == NULL)
+					*list = l->prev;
 				print_list(*list);
-				flag = 1;
-				head = head->prev;
+				needssort = 1;
 			}
+			else
+				l = l->next;
 		}
-		if (flag == 0)
+		if (!needssort)
 			break;
-		flag = 0;
-		for (; head->prev != NULL; head = head->prev)
+		needssort = 0;
+		while (l->prev)
 		{
-			if (head->n < head->prev->n)
+			if (l->prev->n > l->n)
 			{
-				swap(list, head->prev, head);
+				swapper(l->prev, l);
+				if (l->prev == NULL)
+					*list = l;
 				print_list(*list);
-				flag = 1;
-				head = head->next;
+				needssort = 1;
 			}
+			else
+				l = l->prev;
 		}
-	} while (flag == 1);
+	}
 }
